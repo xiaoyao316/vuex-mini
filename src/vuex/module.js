@@ -30,7 +30,7 @@ export default class ModuleCollection {
       /*在父module中插入一个子module*/
       parent.addChild(path[path.length - 1], newModule)
       /*设置子模块响应式state*/
-      const moduleName = path[path.length - 1]
+      let moduleName = path[path.length - 1]
       Vue.set(parent.state, moduleName, newModule.state)
       /*computed也设置一下*/
       forEachValue(newModule._rawModule.getters, (fn, key) => {
@@ -38,12 +38,24 @@ export default class ModuleCollection {
           get: () => fn(newModule.state)
         })
       })
+      let store = this._store
       /*再设置actions 和 mutations*/
       forEachValue(newModule._rawModule.actions, (fn, key) => {
-        this._store.actions[`${moduleName}/${key}`] = fn
+        this._store.actions[`${moduleName}/${key}`] = newModule.actions[key] = function (moduleName, type, payload) {
+          console.log(store)
+          let context = {
+            dispatch: store.actions[`${moduleName}/${type}`],
+            commit: store.mutations[`${moduleName}/${type}`],
+            state: newModule.state
+          }
+          debugger
+          return fn(context, payload)
+        }
       })
       forEachValue(newModule._rawModule.mutations, (fn, key) => {
-        this._store.mutations[`${moduleName}/${key}`] = fn
+        this._store.mutations[`${moduleName}/${key}`] = newModule.mutations[key] = function (moduleName, type, payload) {
+          return fn(newModule.state, payload)
+        }
       })
     }
 
@@ -60,12 +72,12 @@ export default class ModuleCollection {
 /*Module构造类*/
 class Module {
   constructor (rawModule) {
-    this._children = Object.create(null)
-    /*保存module*/
+    /* 保存原始module */
     this._rawModule = rawModule
-    /*保存modele的state*/
-    const rawState = rawModule.state
-    this.state = rawState || {}
+    this.state = rawModule.state || {}
+    this.actions = rawModule.actions;
+    this.mutations = rawModule.mutations;
+    this._children = Object.create(null)
   }
 
   /*插入一个子module，存入_children中*/

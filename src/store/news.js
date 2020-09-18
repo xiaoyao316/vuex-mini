@@ -16,6 +16,7 @@ const getters = {
 
 const actions = {
   getlist: function({commit}, payload) {
+    debugger
     setTimeout(() => {
       commit('setList', [
         {id: 1, name: '你不知道的JavaScript(上)', price: 69},
