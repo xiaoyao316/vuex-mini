@@ -1,9 +1,5 @@
 const state = {
-  list: [
-    {id: 1, name: '你不知道的JavaScript(上)', price: 69},
-    {id: 2, name: '你不知道的JavaScript(中)', price: 99},
-    {id: 3, name: '你不知道的JavaScript(下)', price: 89}
-  ]
+  list: []
 }
 
 const getters = {
@@ -16,7 +12,6 @@ const getters = {
 
 const actions = {
   getlist: function({commit}, payload) {
-    debugger
     setTimeout(() => {
       commit('setList', [
         {id: 1, name: '你不知道的JavaScript(上)', price: 69},
