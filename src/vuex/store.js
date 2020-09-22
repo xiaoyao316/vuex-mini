@@ -41,8 +41,6 @@ export class Store {
     this._actions[type](payload)
   }
   commit (type, payload) {
-    console.log(this)
-    debugger
     this._mutations[type](payload)
   }
 }
@@ -79,7 +77,6 @@ function installModule (store, rootState, path, module) {
   }
 
   const local = makeLocalContext(store, namespace, path)
-  
 
   forEachValue(module.actions || {}, (handler, type) => {
     const namespacedType = namespace + type
@@ -125,9 +122,15 @@ function makeLocalContext (store, namespace, path) {
 
   const local = {
     dispatch: noNamespace ? store.dispatch : (type, payload) => {
+      if (namespace) {
+        type = namespace + type
+      }
       return store.dispatch(type, payload)
     },
     commit: noNamespace ? store.commit : (type, payload) => {
+      if (namespace) {
+        type = namespace + type
+      }
       store.commit(type, payload)
     }
   }

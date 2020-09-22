@@ -14,7 +14,7 @@
         <span>{{item.price}}</span>
       </li>
     </ul>
-    <h2>总价： {{0}}</h2>
+    <h2>总价： {{$store.getters['news/totalPrice']}}</h2>
   </div>
 </template>
 
@@ -31,7 +31,7 @@ export default {
   },
   methods: {
     asyncAdd() {
-      this.$store.dispatch('asyncAdd')
+      this.$store.dispatch('asyncAdd')``
     },
     syncAdd() {
       this.$store.commit('syncAdd')
