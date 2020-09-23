@@ -15,11 +15,10 @@ export function install(_Vue) {
 
 export class Store {
   constructor(options = {}) {
-    this._raw = options
     this._actions = Object.create(null)
     this._mutations = Object.create(null)
     this._wrappedGetters = Object.create(null)
-    this.getters = Object.create(null)
+    this._modulesNamespaceMap = Object.create(null)  // helpers中辅助函数需要用到
 
     const store = this
     const { dispatch, commit } = this
@@ -30,12 +29,11 @@ export class Store {
       return commit.call(store, type, payload)
     }
     
-    installModule(this, options.state, [], this._raw)
+    installModule(this, options.state, [], options)
     resetStoreVM(this, options.state)
   }
   get state() {
-    return this._raw.state
-    // return this._vm._data.$$state
+    return this._vm._data.$$state
   }
   dispatch (type, payload) {
     this._actions[type](payload)
@@ -50,7 +48,6 @@ function resetStoreVM (store, state, hot) {
   const computed = {}
 
   forEachValue(store._wrappedGetters, (fn, key) => {
-    // use computed to leverage its lazy-caching mechanism
     computed[key] = () => fn(store)
     Object.defineProperty(store.getters, key, {
       enumerable: true,
@@ -76,7 +73,7 @@ function installModule (store, rootState, path, module) {
     Vue.set(parentState, moduleName, module.state)
   }
 
-  const local = makeLocalContext(store, namespace, path)
+  const local = module.context = makeLocalContext(store, namespace, path)
 
   forEachValue(module.actions || {}, (handler, type) => {
     const namespacedType = namespace + type
@@ -110,6 +107,10 @@ function installModule (store, rootState, path, module) {
       )
     }
   })
+
+  if (namespace) {
+    store._modulesNamespaceMap[namespace] = module
+  }
 
   forEachValue(module.modules || {}, (child, key) => {
     installModule(store, rootState, path.concat(key), child)
