@@ -22,26 +22,19 @@ export class Store {
     this._wrappedGetters = Object.create(null)
     // helpers中辅助函数需要用到
     this._modulesNamespaceMap = Object.create(null)
-
-    const store = this
-    const { dispatch, commit } = this
-    this.dispatch = function boundDispatch (type, payload) {
-      return dispatch.call(store, type, payload)
-    }
-    this.commit = function boundCommit (type, payload) {
-      return commit.call(store, type, payload)
-    }
-    
+    // 注册actions、mutations, 顺带处理一下_wrappedGetters和_modulesNamespaceMap供后续使用
     installModule(this, options.state, [], options)
+    // 设置state、getters
     resetStoreVM(this, options.state)
   }
   get state() {
     return this._vm._data.$$state
   }
-  dispatch (type, payload) {
+  // 箭头函数保证指向，实际源码中是通过函数劫持实现
+  dispatch = (type, payload) => {
     this._actions[type](payload)
   }
-  commit (type, payload) {
+  commit = (type, payload) => {
     this._mutations[type](payload)
   }
 }
