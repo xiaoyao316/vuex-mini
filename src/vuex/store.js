@@ -1,9 +1,11 @@
 let Vue;
 export function install(_Vue) {
   Vue = _Vue
+  // 借助Vue内置的mixin方法给所有组件都混入一个beforeCreate方法
   Vue.mixin({
     beforeCreate: function () {
       const options = this.$options
+      // 组件树是由上到下解析，最开始是根组件，所以最开始可以通过option.store拿到。向下的层级，都直接从父组件上面取即可。
       if (options.store) {
         this.$store = options.store
       } else if (options.parent && options.parent.$store) {
@@ -18,7 +20,8 @@ export class Store {
     this._actions = Object.create(null)
     this._mutations = Object.create(null)
     this._wrappedGetters = Object.create(null)
-    this._modulesNamespaceMap = Object.create(null)  // helpers中辅助函数需要用到
+    // helpers中辅助函数需要用到
+    this._modulesNamespaceMap = Object.create(null)
 
     const store = this
     const { dispatch, commit } = this
