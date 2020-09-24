@@ -1,21 +1,23 @@
 # vuex-mini
 
-> A Vue.js project
+**vuex简化版**
 
-## Build Setup
+- [x] 数据响应
+        - [x] 修改数据视图联动
+        - [ ] 提供可选严格模式限制非mutation触发的修改
+- [x] 模块化
+        - [x] 支持多级子模块
+        - [ ] 模块动态设置与修改
+- [x] 辅助函数
+        - [x] mapState
+        - [x] mapGetters
+        - [x] mapActions
+        - [x] mapMutations
+- [x] 其它
+        - [ ] 插件
+        - [ ] subscribe
+        - [ ] watch
 
-``` bash
-# install dependencies
-npm install
 
-# serve with hot reload at localhost:8080
-npm run dev
+> 本项目是作为个人学习的代码，旨在以最简单的代码还原vuex的大部分常用Api。而其中未实现的部分，比如模块化的动态设置与修改（对应源码中Module模块），实际项目中真的很少用到，而代码量却还不少。至于其它的，严格模式通俗讲就是做一个开关并依次判断，插件、subscribe也都是几行代码就可以实现，watch则是借助了vue内置的方法$watch。
 
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
