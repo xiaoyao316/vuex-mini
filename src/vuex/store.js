@@ -17,8 +17,11 @@ export function install(_Vue) {
 
 export class Store {
   constructor(options = {}) {
+    // 缓存所有模块的action
     this._actions = Object.create(null)
+    // 缓存所有模块的mutation
     this._mutations = Object.create(null)
+    // 缓存所有模块的getter
     this._wrappedGetters = Object.create(null)
     // helpers中辅助函数需要用到
     this._modulesNamespaceMap = Object.create(null)
@@ -39,7 +42,7 @@ export class Store {
   }
 }
 
-function resetStoreVM (store, state, hot) {
+function resetStoreVM (store, state) {
   store.getters = {}
   const computed = {}
 
@@ -113,11 +116,13 @@ function installModule (store, rootState, path, module) {
   })
 }
 
+// 创建local 对象，这样就可以保证在模块内actions中所定义方法的第一个参数中解构出的dispatch、commit、state、getters值是和当前模块对应的
 function makeLocalContext (store, namespace, path) {
-  /* 判断是否有名字空间 */
+  // 判断命名空间
   const noNamespace = namespace === ''
-
+  
   const local = {
+    // 函数劫持, 模块内触发时，拼接上命名空间，归根结底都是通过Store.dispatch触发缓存在Store._actions上的方法
     dispatch: noNamespace ? store.dispatch : (type, payload) => {
       if (namespace) {
         type = namespace + type
@@ -148,18 +153,11 @@ function makeLocalContext (store, namespace, path) {
 
 function makeLocalGetters (store, namespace) {
   const gettersProxy = {}
-
   const splitPos = namespace.length
+
   Object.keys(store.getters).forEach(type => {
-    // skip if the target getter is not match this namespace
-    if (type.slice(0, splitPos) !== namespace) return
-
-    // extract local getter type
     const localType = type.slice(splitPos)
-
-    // Add a port to the getters proxy.
-    // Define as getter property because
-    // we do not want to evaluate the getters in this time.
+    // 真正取值时再通过代理从store.getters上取
     Object.defineProperty(gettersProxy, localType, {
       enumerable: true,
       get: () => store.getters[type]
