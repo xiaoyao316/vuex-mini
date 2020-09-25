@@ -142,12 +142,8 @@ function makeLocalContext (store, namespace, path) {
     }
   }
 
+  // 根据path，定义local的state
   Object.defineProperties(local, {
-    getters: {
-      get: noNamespace
-        ? () => store.getters
-        : () => makeLocalGetters(store, namespace)
-    },
     state: {
       get: () => getNestedState(store.state, path)
     }
@@ -156,22 +152,7 @@ function makeLocalContext (store, namespace, path) {
   return local
 }
 
-function makeLocalGetters (store, namespace) {
-  const gettersProxy = {}
-  const splitPos = namespace.length
-
-  Object.keys(store.getters).forEach(type => {
-    const localType = type.slice(splitPos)
-    // 真正取值时再通过代理从store.getters上取
-    Object.defineProperty(gettersProxy, localType, {
-      enumerable: true,
-      get: () => store.getters[type]
-    })
-  })
-
-  return gettersProxy
-}
-
+// 根据path取到对应的state
 function getNestedState (state, path) {
   return path.length
     ? path.reduce((state, key) => state[key], state)
