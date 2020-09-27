@@ -43,23 +43,28 @@ export class Store {
 }
 
 function resetStoreVM (store, state) {
+  // 在Store上定义getters空对象，保证$store.getters能直接访问  
   store.getters = {}
   const computed = {}
 
+  // 给Store.getters定义每个模块的getter，并代理到store._vm上
   forEachValue(store._wrappedGetters, (fn, key) => {
     computed[key] = () => fn(store)
+    // 
     Object.defineProperty(store.getters, key, {
       enumerable: true,
       get: () => store._vm[key]
     })
   })
 
-  // installModule中已经将子模块的state全部定义到父模块上，这里创建vue实例后，便可代理所有state属性，
+  // installModule中已经将子模块的state全部定义到父模块上，这里创建vue实例后，便可响应式代理所有state属性
   // 再配合Store类上对state属性定义的get代理方法，即$store.state代理到$store.vm._data.state，于是$store.state.name/$store.state.news.list等等都能正常取值
   store._vm = new Vue({
     data: {
       $$state: state
     },
+    // 和state一样，但它不需要设置，所以没必要用data选项，computed更合适
+    // 为什么非得通过computed或者state？ 答： 响应式原理。只有这样才能做的数据侦听、依赖收集，从而实现响应式。否则初始化后再改值页面不会更新。
     computed
   })
 }

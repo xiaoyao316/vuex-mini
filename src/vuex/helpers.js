@@ -1,13 +1,12 @@
 /**
- * 为了便于理解，对mapState进行了逻辑简化，只保留传入对象的使用方式
+ * 为了便于理解，对mapState进行了逻辑简化，只保留对象作为参数的使用方式，其它几个思路一样。
  */
 export const mapState = function mapStateWrap (states) {
   const res = {}
   forEachValue(states, (fn, key) => {
     res[key] = function mappedState () {
       let state = this.$store.state
-      let getters = this.$store.getters
-      return fn.call(this, state, getters)
+      return fn.call(this, state)
     }
   })
   return res
